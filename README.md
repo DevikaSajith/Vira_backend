@@ -1,5 +1,9 @@
 # vira_app
 
+# vira_dashboard
+
+(Added VIRA subfolder contents as regular files)
+
 A new Flutter project.
 
 ## Getting Started
