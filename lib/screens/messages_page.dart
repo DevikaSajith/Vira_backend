@@ -1,150 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-class MessagesPage extends StatelessWidget {
-  final List<Map<String, dynamic>> requests = [
-    {
-      'name': 'Maria Rodriguez',
-      'type': 'Medical Attention',
-      'status': 'In Progress',
-    },
-    {
-      'name': 'Sarah Johnson',
-      'type': 'Sanitary Products',
-      'status': 'Pending',
-    },
-  ];
+class MessagesPage extends StatefulWidget {
+  const MessagesPage({super.key});
+
+  @override
+  State<MessagesPage> createState() => _MessagesPageState();
+}
+
+class _MessagesPageState extends State<MessagesPage> {
+  final DatabaseReference _messagesRef = FirebaseDatabase.instance.ref('messages');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
       appBar: AppBar(
-        title: Text('Emergency Requests',
-            style: TextStyle(color: Color(0xFFF8F1E7))),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        iconTheme: IconThemeData(color: Color(0xFFF8F1E7)),
+        title: const Text('Messages'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildStatusFilter(),
-            SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: requests.length,
-                itemBuilder: (context, index) {
-                  final req = requests[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // LEFT SIDE
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(req['type'],
-                                    style: TextStyle(
-                                        color: Color(0xFFF8F1E7),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold)),
-                                SizedBox(height: 6),
-                                Text(req['name'],
-                                    style: TextStyle(
-                                        color: Color(0xFFB3A59D),
-                                        fontSize: 13)),
-                              ],
-                            ),
-                          ),
+      body: StreamBuilder<DatabaseEvent>(
+        stream: _messagesRef.onValue,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error loading messages'));
+          }
+          if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+            return const Center(child: Text('No messages yet'));
+          }
 
-                          // RIGHT SIDE
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Chip(
-                                label: Text(
-                                  req['status'],
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
-                                backgroundColor: req['status'] == 'Pending'
-                                    ? Colors.red
-                                    : Colors.orange,
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 6),
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      minimumSize: Size(0, 30),
-                                    ),
-                                    child: Text("Accept",
-                                        style: TextStyle(fontSize: 12)),
-                                  ),
-                                  SizedBox(width: 6),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 6),
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      minimumSize: Size(0, 30),
-                                    ),
-                                    child: Text("Resolve",
-                                        style: TextStyle(fontSize: 12)),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          final data = snapshot.data!.snapshot.value as Map;
+          final messages = data.entries.toList()
+            ..sort((a, b) => a.value['timestamp'].compareTo(b.value['timestamp'])); // sort by time
+
+          return ListView.builder(
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final msg = messages[index].value;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: ListTile(
+                  leading: const Icon(Icons.message, color: Colors.amber),
+                  title: Text(msg['content'] ?? ''),
+                  subtitle: Text('From: ${msg['sender'] ?? 'Unknown'}'),
+                  trailing: Text(msg['timestamp']?.toString().split('T').last ?? ''),
+                ),
+              );
+            },
+          );
+        },
       ),
-    );
-  }
-
-  Widget _buildStatusFilter() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        FilterChip(
-          label: Text("All", style: TextStyle(color: Color(0xFFF8F1E7))),
-          onSelected: (_) {},
-        ),
-        FilterChip(
-          label: Text("Pending", style: TextStyle(color: Color(0xFFF8F1E7))),
-          onSelected: (_) {},
-        ),
-        FilterChip(
-          label: Text("In Progress", style: TextStyle(color: Color(0xFFF8F1E7))),
-          onSelected: (_) {},
-        ),
-        FilterChip(
-          label: Text("Resolved", style: TextStyle(color: Color(0xFFF8F1E7))),
-          onSelected: (_) {},
-        ),
-      ],
     );
   }
 
@@ -153,17 +57,15 @@ class MessagesPage extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.pinkAccent),
-            child: Text('Vira',
-                style: TextStyle(fontSize: 24, color: Colors.white)),
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.amber),
+            child: Text('VIRA Menu', style: TextStyle(fontSize: 24, color: Colors.white)),
           ),
-          _drawerItem(context, 'Dashboard', '/dashboard'),
-          _drawerItem(context, 'Messages', '/messages'),
+          _drawerItem(context, 'Emergency', '/emergency'),
           _drawerItem(context, 'Stock', '/stock'),
+          _drawerItem(context, 'Messages', '/messages'),
           _drawerItem(context, 'Contacts', '/contacts'),
           _drawerItem(context, 'Support', '/support'),
-          _drawerItem(context, 'Emergency', '/emergency'),
         ],
       ),
     );
@@ -171,7 +73,7 @@ class MessagesPage extends StatelessWidget {
 
   Widget _drawerItem(BuildContext context, String title, String route) {
     return ListTile(
-      title: Text(title, style: TextStyle(color: Color(0xFFF8F1E7))),
+      title: Text(title),
       onTap: () {
         Navigator.pushNamed(context, route);
       },

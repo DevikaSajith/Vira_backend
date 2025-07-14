@@ -39,41 +39,51 @@ class EmergencyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
-      appBar: AppBar(title: Text('Emergency Status')),
+      appBar: AppBar(title: const Text('Emergency Status')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Current Emergency Status:",
-                style: Theme.of(context).textTheme.titleLarge),
-            SizedBox(height: 8),
+            Text(
+              "Current Emergency Status:",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
             Card(
-              color: Colors.pink.withOpacity(0.2),
+              color: Colors.pink.withOpacity(0.15),
+              elevation: 3,
               child: ListTile(
-                leading: Icon(Icons.warning, color: Colors.pinkAccent),
-                title: Text(currentStatus,
-                    style: TextStyle(fontSize: 18, color: Colors.white)),
+                leading: const Icon(Icons.warning, color: Colors.pinkAccent),
+                title: Text(
+                  currentStatus,
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ),
-            SizedBox(height: 24),
-            Text("Response Protocol Checklist:",
-                style: Theme.of(context).textTheme.titleLarge),
-            SizedBox(height: 8),
+            const SizedBox(height: 24),
+            Text(
+              "Response Protocol Checklist:",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
             Expanded(
-              child: ListView(
-                children: protocols.map((p) {
+              child: ListView.builder(
+                itemCount: protocols.length,
+                itemBuilder: (context, index) {
+                  final step = protocols[index];
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     child: ListTile(
-                      title: Text(p['step']!),
+                      leading: const Icon(Icons.task),
+                      title: Text(step['step']!),
                       trailing: Chip(
-                        label: Text(p['status']!),
-                        backgroundColor: _statusColor(p['status']!),
+                        label: Text(step['status']!),
+                        backgroundColor: _statusColor(step['status']!),
                       ),
                     ),
                   );
-                }).toList(),
+                },
               ),
             ),
           ],
@@ -87,10 +97,12 @@ class EmergencyPage extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
+          const DrawerHeader(
             decoration: BoxDecoration(color: Colors.pinkAccent),
-            child: Text('Sisterhood Aid',
-                style: TextStyle(fontSize: 24, color: Colors.white)),
+            child: Text(
+              'VIRA',
+              style: TextStyle(fontSize: 24, color: Colors.white),
+            ),
           ),
           _drawerItem(context, 'Dashboard', '/dashboard'),
           _drawerItem(context, 'Messages', '/messages'),
@@ -107,6 +119,7 @@ class EmergencyPage extends StatelessWidget {
     return ListTile(
       title: Text(title),
       onTap: () {
+        Navigator.pop(context); // Close the drawer first
         Navigator.pushNamed(context, route);
       },
     );

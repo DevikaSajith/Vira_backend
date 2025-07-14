@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1094735895975",
+    "firebase_url": "https://vira-backend-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "vira-backend",
+    "storage_bucket": "vira-backend.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094735895975:android:35b6d410e14f8eb24a6a82",
+        "android_client_info": {
+          "package_name": "com.example.vira_dashboard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlFZYV736o-tMNUYLUbVfgYwkP8b5vK5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
