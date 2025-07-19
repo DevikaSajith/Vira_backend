@@ -283,4 +283,8 @@ class _StockPageState extends State<StockPage> {
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 128cd830dd412724176629f9e3695d8c77b9e26c
