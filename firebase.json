@@ -1,1 +1,37 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"vira-backend","appId":"1:1094735895975:android:35b6d410e14f8eb24a6a82","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"vira-backend","configurations":{"android":"1:1094735895975:android:35b6d410e14f8eb24a6a82","web":"1:1094735895975:web:c04025aaf83ccabb4a6a82","windows":"1:1094735895975:web:1f280b2e11e4332e4a6a82"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "vira-backend",
+          "appId": "1:1094735895975:android:35b6d410e14f8eb24a6a82",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "vira-backend",
+          "configurations": {
+            "android": "1:1094735895975:android:35b6d410e14f8eb24a6a82",
+            "web": "1:1094735895975:web:c04025aaf83ccabb4a6a82",
+            "windows": "1:1094735895975:web:1f280b2e11e4332e4a6a82"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart'; // Import provider
-import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'firebase_options.dart';
 import 'screens/auth_page.dart';
@@ -10,7 +10,7 @@ import 'screens/stock_page.dart';
 import 'screens/messages_page.dart';
 import 'screens/contacts_page.dart';
 import 'screens/support_page.dart'; // Assuming EmergencySupportPage is here
-import 'theme_provider.dart'; // Import your theme provider
+import 'theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider( // Wrap MyApp with ChangeNotifierProvider
+    ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
       child: const MyApp(),
     ),
@@ -30,15 +30,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Access the theme provider to get the current theme mode
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
       title: 'VIRA',
       debugShowCheckedModeBanner: false,
-      theme: ThemeProvider.lightTheme(), // Define the light theme
-      darkTheme: ThemeProvider.darkTheme(), // Define the dark theme
-      themeMode: themeProvider.themeMode, // Control theme based on provider's state
+      theme: ThemeProvider.lightTheme(),
+      darkTheme: ThemeProvider.darkTheme(),
+      themeMode: themeProvider.themeMode,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -47,7 +46,7 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           } else if (snapshot.hasData) {
-            return const HomePage(); // Revert to HomePage as the main screen
+            return const HomePage();
           } else {
             return const AuthPage();
           }
@@ -57,8 +56,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// HomePage and ViraHomePage will be kept in this file,
-// but their content and styling will be updated to be theme-aware.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -70,11 +67,11 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
-    ViraHomePage(), // This is still your custom home content
+    ViraHomePage(),
     StockPage(),
     MessagesPage(),
     ContactPage(),
-    EmergencySupportPage(), // Ensure this matches your class name
+    EmergencySupportPage(),
   ];
 
   final List<String> _titles = [
@@ -82,63 +79,71 @@ class _HomePageState extends State<HomePage> {
     'Stock',
     'Messages',
     'Contacts',
-    'Helpline', // Changed from Support to Helpline as per image suggestion
+    'Helpline',
   ];
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context); // Access theme provider
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // Allows the body to extend behind the app bar
+      // extendBodyBehindAppBar: true, // REMOVED THIS LINE to fix overlapping
       appBar: AppBar(
-        // Removed explicit colors here to rely on Theme.of(context).appBarTheme
-        // The gradient will be handled in ViraHomePage's background.
-        title: _selectedIndex == 0
-            ? Text(
-                'Home',
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).appBarTheme.titleTextStyle?.color?.withOpacity(0.7), // Use theme color, slightly faded
-                  fontWeight: FontWeight.normal,
-                ),
-              )
-            : Text(
-                _titles[_selectedIndex],
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).appBarTheme.titleTextStyle?.color, // Use theme color
-                  fontWeight: FontWeight.bold,
+        // The title now conditionally includes "Welcome" for the Home page
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _titles[_selectedIndex],
+              style: GoogleFonts.inter(
+                fontSize: 28, // Adjusted font size for main title
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).appBarTheme.titleTextStyle?.color,
+              ),
+            ),
+            if (_selectedIndex == 0) // Only show "Welcome" on the Home page
+              Text(
+                'Welcome', // Added "Welcome" under "Home"
+                style: GoogleFonts.satisfy( // Changed to a more decorative font for "Welcome"
+                  fontSize: 22, // Adjusted size for new font
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).appBarTheme.toolbarTextStyle?.color,
                 ),
               ),
+          ],
+        ),
         actions: [
-          // Theme Toggle Button (Sun/Moon)
           IconButton(
             icon: Icon(
               themeProvider.themeMode == ThemeMode.light
-                  ? Icons.wb_sunny // Sun icon for light mode
-                  : Icons.mode_night, // Moon icon for dark mode
-              color: Theme.of(context).appBarTheme.iconTheme?.color, // Use theme icon color
+                  ? Icons.wb_sunny
+                  : Icons.mode_night,
+              color: Theme.of(context).appBarTheme.iconTheme?.color,
             ),
             onPressed: () {
-              themeProvider.toggleTheme(); // Toggle theme
+              themeProvider.toggleTheme();
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout, color: Theme.of(context).appBarTheme.iconTheme?.color), // Use theme icon color
+            icon: Icon(Icons.logout, color: Theme.of(context).appBarTheme.iconTheme?.color),
             onPressed: () => FirebaseAuth.instance.signOut(),
           )
         ],
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Match background
+        elevation: 0, // No shadow for a cleaner look
+        toolbarHeight: _selectedIndex == 0 ? 100 : 60, // Adjust height based on title content
       ),
       body: _pages[_selectedIndex],
-      // Bottom navigation bar will automatically pick up styles from ThemeData
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, // Use theme color
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).brightness == Brightness.light
+              color: isLightMode
                   ? Colors.grey.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.4), // Darker shadow for dark mode
+                  : Colors.black.withOpacity(0.4),
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, -3),
@@ -148,8 +153,8 @@ class _HomePageState extends State<HomePage> {
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent, // Make transparent to show container's color
-          elevation: 0, // Remove default shadow
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           onTap: (index) => setState(() => _selectedIndex = index),
           items: [
             BottomNavigationBarItem(
@@ -173,17 +178,17 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(8),
                 decoration: _selectedIndex == 4
                     ? BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.3), // Use theme primary color
+                        color: Theme.of(context).primaryColor.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Theme.of(context).primaryColor), // Use theme primary color
+                        border: Border.all(color: Theme.of(context).primaryColor),
                       )
                     : null,
                 child: Icon(
                   _selectedIndex == 4 ? Icons.support_agent : Icons.support_agent_outlined,
-                  color: _selectedIndex == 4 ? Theme.of(context).primaryColor : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor, // Use theme colors
+                  color: _selectedIndex == 4 ? Theme.of(context).primaryColor : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
                 ),
               ),
-              label: 'Helpline', // Label updated to Helpline
+              label: 'Helpline',
             ),
           ],
         ),
@@ -192,101 +197,119 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// ViraHomePage: The custom home screen content with branding and decorative elements.
 class ViraHomePage extends StatelessWidget {
   const ViraHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get colors from the current theme
+    // Get colors from the current theme for dynamic styling
     final isLightMode = Theme.of(context).brightness == Brightness.light;
     final Color viraTextColor = isLightMode ? const Color(0xFF5C5470) : Colors.grey[200]!;
     final Color welcomeTextColor = isLightMode ? const Color(0xFF5C5470) : Colors.grey[300]!;
-    final Color iconColor = isLightMode ? Colors.pink.withOpacity(0.2) : Colors.brown[300]!.withOpacity(0.2);
-    final Color starIconColor = isLightMode ? Colors.yellow.withOpacity(0.2) : Colors.orange[300]!.withOpacity(0.2);
+    // Note: iconColor and starIconColor might need adjustment for the new pink gradient
+    // For now, let's make them slightly adjusted based on the new background, or keep as is if they look good.
+    final Color heartColor = isLightMode ? const Color(0xFFE57373) : Colors.brown[300]!; // Adjusted for new light theme
+    final Color starColor = isLightMode ? const Color(0xFFFFD54F) : Colors.orange[300]!; // Adjusted for new light theme
+
+
+    // Background gradient colors from the login page (image_2d53aa.png)
+    // Adjusted for a more subtle pink theme
+    final List<Color> lightModeBackgroundGradientColors = [
+      const Color(0xFFFFFFFF), // Start with white for a very subtle top
+      const Color(0xFFFDEEF7), // Very light pink
+      const Color(0xFFFAD1E8), // Light pink
+      const Color(0xFFF5A9D3), // Slightly deeper pink
+    ];
+
+
+    // Padding to push content below the AppBar on ViraHomePage specifically
+    // Now that extendBodyBehindAppBar is false, this padding is crucial.
+    final double appBarHeight = AppBar().preferredSize.height;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    // Adjusted padding calculation because AppBar is no longer "behind" the body.
+    // We add the AppBar's height directly.
+    final double topContentPadding = statusBarHeight + appBarHeight + 20; // Added extra 20 for visual spacing
+
 
     return Container(
+      // The Container itself should fill all available space to show the gradient
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         gradient: isLightMode
-            ? const LinearGradient(
+            ? LinearGradient(
+                begin: Alignment.topCenter, // Changed to top to bottom
+                end: Alignment.bottomCenter, // Changed to top to bottom
+                colors: lightModeBackgroundGradientColors,
+                stops: const [0.0, 0.3, 0.7, 1.0], // Adjusted stops for smoother transition
+              )
+            : const LinearGradient( // Keep existing dark theme gradient
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFFFF7FC), // Very light pink/white at the top
-                  Color(0xFFF9E7F6), // Slightly darker pink/purple in the middle
-                  Color(0xFFF5E0F0), // Even darker at the bottom
+                  Color(0xFF2C1917),
+                  Color(0xFF38201E),
+                  Color(0xFF422B29),
                 ],
                 stops: [0.0, 0.5, 1.0],
-              )
-            : LinearGradient( // Dark theme gradient (coffee brown shades)
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF2C1917), // Darker brown at top
-                  const Color(0xFF38201E), // Mid brown
-                  const Color(0xFF422B29), // Lighter brown at bottom
-                ],
-                stops: const [0.0, 0.5, 1.0],
               ),
       ),
       child: Stack(
         children: [
-          // Background decorative elements (stars and hearts)
-          // Make these theme-aware as well
+          // Decorative elements (hearts and stars) - keeping their theme-awareness
           ..._buildDecorativeElements(context),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => isLightMode
-                      ? const LinearGradient(
-                          colors: [
-                            Color(0xFFDD79A3), // Pink
-                            Color(0xFFA97AC1), // Purple
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds)
-                      : const LinearGradient( // Dark theme gradient for VIRA text
-                          colors: [
-                            Color(0xFFBCAAA4), // Lighter brown
-                            Color(0xFF8D6E63), // Muted brown
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                  child: Text(
-                    'VIRA',
-                    style: GoogleFonts.inter( // Use Inter font
-                      fontSize: 80,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white, // Color is masked by the shader
-                      letterSpacing: 5,
-                      height: 1.0,
+          // Add padding to the top to account for the AppBar's height
+          Padding(
+            padding: EdgeInsets.only(top: topContentPadding),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // "VIRA" Text (reverted to original font)
+                  ShaderMask(
+                    shaderCallback: (bounds) => isLightMode
+                        ? const LinearGradient(
+                            colors: [
+                              Color(0xFFDD79A3), // Pink from previous AuthPage gradient
+                              Color(0xFFA97AC1), // Purple from previous AuthPage gradient
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds)
+                        : const LinearGradient(
+                            colors: [
+                              Color(0xFFBCAAA4), // Lighter brown for dark mode
+                              Color(0xFF8D6E63), // Muted brown for dark mode
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds),
+                    child: Text(
+                      'VIRA',
+                      style: GoogleFonts.inter( // Reverted to original Inter font
+                        fontSize: 80, // Original size
+                        fontWeight: FontWeight.w900, // Original weight
+                        color: Colors.white, // Color is masked by the shader
+                        height: 1.0,
+                        letterSpacing: 5, // Original letter spacing
+                      ),
                     ),
                   ),
-                ),
-                // Removed the SizedBox and Row containing "Welcome to your magical space!"
-                // const SizedBox(height: 10),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     Text(
-                //       'Welcome to your magical space!',
-                //       style: GoogleFonts.inter(
-                //         fontSize: 18,
-                //         color: welcomeTextColor,
-                //         fontWeight: FontWeight.w500,
-                //       ),
-                //     ),
-                //     const SizedBox(width: 8),
-                //     Text(
-                //       '🌸',
-                //       style: TextStyle(fontSize: 20, color: welcomeTextColor),
-                //     ),
-                //   ],
-                // ),
-              ],
+                  const SizedBox(height: 10),
+                  // Tagline: VOICE. IMPACT. RELIEF. ACCESS. (ALL CAPS)
+                  Text(
+                    'VOICE. IMPACT. RELIEF. ACCESS.', // Already in ALL CAPS
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: welcomeTextColor,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -296,27 +319,20 @@ class ViraHomePage extends StatelessWidget {
 
   List<Widget> _buildDecorativeElements(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
-    final Color heartColor = isLightMode ? Colors.pink : Colors.brown[300]!;
-    final Color starColor = isLightMode ? Colors.yellow : Colors.orange[300]!;
+    final Color heartColor = isLightMode ? const Color(0xFFE57373) : Colors.brown[300]!; // Adjusted for new light theme
+    final Color starColor = isLightMode ? const Color(0xFFFFD54F) : Colors.orange[300]!; // Adjusted for new light theme
 
     return [
-      // Hearts
       Positioned(top: 80, left: 50, child: Icon(Icons.favorite_border, color: heartColor.withOpacity(0.2), size: 30)),
       Positioned(top: 150, right: 30, child: Icon(Icons.favorite_border, color: heartColor.withOpacity(0.15), size: 20)),
       Positioned(bottom: 200, left: 100, child: Icon(Icons.favorite_border, color: heartColor.withOpacity(0.1), size: 25)),
       Positioned(bottom: 100, right: 80, child: Icon(Icons.favorite_border, color: heartColor.withOpacity(0.25), size: 40)),
-      // Stars
       Positioned(top: 50, right: 70, child: Icon(Icons.star_border, color: starColor.withOpacity(0.2), size: 35)),
       Positioned(top: 200, left: 20, child: Icon(Icons.star_border, color: starColor.withOpacity(0.1), size: 20)),
       Positioned(bottom: 50, left: 50, child: Icon(Icons.star_border, color: starColor.withOpacity(0.15), size: 30)),
       Positioned(bottom: 250, right: 50, child: Icon(Icons.star_border, color: starColor.withOpacity(0.25), size: 45)),
-      // Random sparkles/shapes
       Positioned(top: 120, left: 180, child: Text('✨', style: TextStyle(fontSize: 20, color: starColor.withOpacity(0.5)))),
       Positioned(bottom: 150, left: 150, child: Text('💫', style: TextStyle(fontSize: 25, color: starColor.withOpacity(0.5)))),
     ];
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 128cd830dd412724176629f9e3695d8c77b9e26c
