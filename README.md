@@ -4,23 +4,6 @@ A gender-sensitive, offline-first emergency communication system using LoRa and 
 
 -----
 
-## Table of Contents
-
-  * [Project Overview](https://www.google.com/search?q=%23project-overview)
-  * [Problem Statement](https://www.google.com/search?q=%23problem-statement)
-  * [Live Links](https://www.google.com/search?q=%23live-links)
-  * [Key Features](https://www.google.com/search?q=%23key-features)
-  * [Tech Stack](https://www.google.com/search?q=%23tech-stack)
-  * [System Architecture](https://www.google.com/search?q=%23system-architecture)
-  * [Getting Started](https://www.google.com/search?q=%23getting-started)
-  * [Challenges and Solutions](https://www.google.com/search?q=%23challenges-and-solutions)
-  * [Impact and Future Scope](https://www.google.com/search?q=%23impact-and-future-scope)
-  * [Team](https://www.google.com/search?q=%23team--fourloops)
-  * [Repositories](https://www.google.com/search?q=%23repositories)
-  * [License](https://www.google.com/search?q=%23license)
-
------
-
 ## Project Overview
 
 **VIRA (Voice. Impact. Relief. Access.)** is a low-cost, wearable emergency alert system designed for women and vulnerable communities in disaster-affected zones. It bridges the communication gap during crises where traditional mobile networks fail.
